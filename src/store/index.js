@@ -42,12 +42,29 @@ export const store = new Vuex.Store({
     },
     actions: {
         createMeetup: (context, payload) => {
-            axios.post('https://vue-mmetup.firebaseio.com/posts.json', payload).then(response => {
-                console.log(response);
-            }).catch(error => {
-                this.errors.push(error);
-            })
-            context.commit("createMeetup", payload)
+            // axios.post('https://vue-mmetup.firebaseio.com/posts.json', payload).then(response => {
+            //     console.log(response);
+            // }).catch(error => {
+            //     this.errors.push(error);
+            // })
+            // context.commit("createMeetup", payload)
+            const meetup = {
+                title: payload.title,
+                imageUrl: payload.imageUrl,
+                description: payload.description,
+                date: payload.date,
+                //creatorId: getters.user.id
+             }
+             firebase.database().ref('meetups').push(meetup).then((data) => {
+                 console.log(data);
+                 const key = data.key
+                 context.commit('createMeetup', {
+                    ...meetup,
+                    id: key
+                  })
+                }).catch((error) => {
+                  console.log(error)
+                })
         },
         signupUser: (context, payload) => {
             firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password).then(user =>{
